@@ -38,21 +38,19 @@ class Rsyncbackup
     info "Rsync command: #{cmd}"
     if options[:dry_run]
       info "Dry run only"
-    else
-      
-      Open3.popen3(cmd) do |stdin, stdout, stderr, wait|
-        stdin.close
-        until stdout.eof?
-          info stdout.gets
-        end
-        until stderr.eof?
-          errors =  stderr.gets
-        end
-        result = wait.value
-        raise "Command failed. Return code: #{result}\n#{errors}" unless result == 0
-      end
-    
     end
-    
+      
+    Open3.popen3(cmd) do |stdin, stdout, stderr, wait|
+      stdin.close
+      until stdout.eof?
+        info stdout.gets
+      end
+      until stderr.eof?
+        errors =  stderr.gets
+      end
+      result = wait.value
+      raise "Command failed. Return code: #{result}\n#{errors}" unless result == 0
+    end
+        
   end
 end
