@@ -49,5 +49,11 @@ class Rsyncbackup
     Date.new.strftime("%FT%H-%M-%S")
   end
 
+  def rsync_executable
+    rsync = `which rsync`.chomp
+    raise "No rsync executable. Are you sure it's installed?" if rsync.empty?
+    rsync
+  end
+
 
 end
