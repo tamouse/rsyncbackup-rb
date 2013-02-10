@@ -18,7 +18,7 @@ class Rsyncbackup
       inplace: true,
       numeric_ids: true,
       delete: true,
-      rsync_cmd: `which rsync`.chomp
+      rsync_cmd: rsync_executable
     }.merge(opts)
     
     debug "options: #{options.inspect}"
