@@ -1,0 +1,50 @@
+= rsyncbackup - Yet another rsync backup script, this time in ruby, as a methadone CLI app
+
+Author::  Tamara Temple <tamara@tamaratemple.com>
+Copyright:: Copyright (c) 2013 Tamara Temple
+License:: mit, see LICENSE.txt
+
+Everyone writes at least one rsync backup script; I've written a
+few. This time, it's in ruby, utilizing davetron5000's methadone gem
+to craete a nice command line application with arguments, help
+functions and even testing built on.
+
+== Install
+
+gem install rsyncbackup
+
+--or--
+
+git clone https://github.com/tamouse/rsyncbackup-rb
+
+== Synopsis (breif, use help for more complete info)
+
+    rsyncbackup [options] source target
+
+source and target can be any legal rsync descriptor.
+
+== Description
+
+`rsyncbackup` makes dated backups by hard-linking in the `target` directory.
+
+== Examples
+
+Backup your phone when mounted to your desktop:
+
+    rsyncbackup /media/MOT /media/Backup/Droid3Backup
+
+Back up your pmwiki excluding worker files:
+
+    rsyncbackup --exclusions pmwiki.exclude youruser@yourserver.com:path/to/pmwiki /media/Backup/pmwiki
+
+== Links
+
+* {Source on Github}[https://github.com/tamouse/rsyncbackup-rb]
+* RDoc[LINK TO RDOC.INFO] (coming soon!)
+
+== Contributing
+
+1. Fork it!
+2. Crack a branch
+3. Make your changes.
+4. Submit a pull request.
