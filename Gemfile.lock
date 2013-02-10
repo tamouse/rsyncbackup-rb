@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rsyncbackup (0.0.1)
+    rsyncbackup (1.0.0)
       methadone (~> 1.2.4)
 
 GEM
