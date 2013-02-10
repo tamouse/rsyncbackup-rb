@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'methadone'
+require 'rsyncbackup'
+
+class App
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  main do |source, target|
+    options[:source] = source
+    options[:target] = target
+    Rsyncbackup.new(options)
+  end
+
+  description "Yet another rsync backup script, this time in ruby"
+
+  on("-e","--exclusions FILE","Exclusions file")
+  on("-d","--[no-]dry-run","Mark this as a dry run (or not)")
+  
+
+  arg :source, "Source to backup from"
+  arg :target, "Target backup directory"
+
+  version Rsyncbackup::VERSION
+
+  use_log_level_option
+
+  go!
+end
