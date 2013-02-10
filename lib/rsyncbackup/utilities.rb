@@ -29,7 +29,7 @@ class Rsyncbackup
     cmd << "--exclude-file #{options[:exclusions]}" if File.exist?(options[:exclusions])
     cmd << "--link-dest #{options[:link_dest]}" if options[:link_dest]
     cmd << options[:source]
-    cmd << "#{options[:target]}/.incomplete"
+    cmd << temp_target_path
     
     cmd.join(' ').tap{|t| debug "Command: #{t}" }
     
@@ -51,8 +51,20 @@ class Rsyncbackup
   # returns the directory name for the current backup
   # directory name consists of a time format: YYYY-MM-DDTHH-MM-SS
   def backup_dir_name
-    Date.new.strftime("%FT%H-%M-%S")
+    @backup_dir_name ||= Time.now.strftime("%FT%H-%M-%S")
   end
+
+  # returns the full target path, including backup directory name
+  def full_target_path
+    @full_target_path ||= options[:target]+"/"+backup_dir_name
+  end
+
+  # returns the temporary target path
+  def temp_target_path
+    @temp_target_path ||= options[:target]+"/.incomplete"
+  end
+  
+
 
   # returns the path to the rsync executable
   # If none found, raises an Exception

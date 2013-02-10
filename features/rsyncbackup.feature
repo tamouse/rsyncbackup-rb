@@ -13,6 +13,7 @@ Feature: help lists all options and arguments
       |--exclusions|
       |--help|
       |--log-level|
+      |--verbose|
       |--version|
     And the banner should document that this app's arguments are:
       |source|

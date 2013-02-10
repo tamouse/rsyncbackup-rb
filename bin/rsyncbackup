@@ -8,11 +8,17 @@ class App
   include Methadone::Main
   include Methadone::CLILogging
 
+  if logger.info?
+    logger.level=Logger::WARN
+  end
+  
+
   main do |source, target|
-    logger.level = (options[:verbose] ? Logger::INFO : Logger::WARN)
     options[:source] = source
     options[:target] = target
-    Rsyncbackup.new(options)
+    syncer = Rsyncbackup.new(options)
+    syncer.run
+    syncer.finalize
   end
 
   description "Yet another rsync backup script, this time in ruby"
