@@ -1,7 +1,7 @@
-Feature: My bootstrapped app kinda works
-  In order to get going on coding my awesome app
-  I want to have aruba and cucumber setup
-  So I don't have to do it myself
+Feature: help lists all options and arguments
+  In order to ensure user knows what to do
+  I want to display a useful help
+  So I know how to run the rsync backup
 
   Scenario: App just runs
     When I get help for "rsyncbackup"
