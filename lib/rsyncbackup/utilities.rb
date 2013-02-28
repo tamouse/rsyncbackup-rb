@@ -27,9 +27,9 @@ class Rsyncbackup
     cmd << '--numeric-ids'         if options[:numeric_ids]
     cmd << '--delete'              if options[:delete]
     cmd << "--exclude-file #{options[:exclusions]}" if File.exist?(options[:exclusions])
-    cmd << "--link-dest #{options[:link_dest]}" if options[:link_dest]
-    cmd << options[:source]
-    cmd << temp_target_path
+    cmd << "--link-dest '#{options[:link_dest]}'" if options[:link_dest]
+    cmd << "'#{options[:source]}'"
+    cmd << "'#{temp_target_path}'"
     
     cmd.join(' ').tap{|t| debug "Command: #{t}" }
     
