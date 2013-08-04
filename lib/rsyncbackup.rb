@@ -6,78 +6,64 @@ require 'methadone'
 class Rsyncbackup
   include Methadone::CLILogging
     
-  attr_accessor :options
+  attr_accessor :source, :target, :options
 
-  def initialize(opts={})
+  def initialize(source, target, opts={})
+    logger.level = Logger::WARN
+    logger.level = Logger::INFO if opts[:verbose]
+    logger.error_level = Logger::DEBUG if opts[:debug]
+
+    raise "Unknown target: #{target}" unless File.exist?(target) or opts[:dry_run]
+
+    @source     = strip_trailing_separator_if_any(source,true)
+    @target     = strip_trailing_separator_if_any(target)
+
     @options = {
-      dry_run: false,
-      exclusions: DEFAULT_EXCLUSIONS,
-      archive: true,
-      one_file_system: true,
-      hard_links: true,
-      human_readable: true,
-      inplace: true,
-      numeric_ids: true,
-      delete: true,
-      rsync_cmd: rsync_executable
+      :dry_run         => false,
+      :exclusions      => DEFAULT_EXCLUSIONS,
+      :archive         => true,
+      :one_file_system => true,
+      :hard_links      => true,
+      :human_readable  => true,
+      :inplace         => true,
+      :numeric_ids     => true,
+      :delete          => true,
+      :link_dest       => last_full_backup,
+      :rsync_cmd       => rsync_executable
     }.merge(opts)
     
-    options[:source] = strip_trailing_separator_if_any(options[:source])
-    options[:target] = strip_trailing_separator_if_any(options[:target])
-    options[:link_dest] ||= last_full_backup
+    @incomplete = File.join(target,DEFAULT_INCOMPLETE_DIR_NAME)
+    @complete   = File.join(target,backup_dir_name)
     
-    if logger.warn? && options[:verbose] == true
-      logger.level=Logger::INFO
-    end
-
-    debug "#{caller[0]}options: #{options.inspect}"
+    
+    debug "#{caller(0,1).first} @source: #{@source}, @target: #{@target}, @options: #{@options.inspect}"
 
   end
 
 
   def run
-    cmd = build_command
+    @cmd = build_command
     
-    info "Rsync command: #{cmd}"
-    if options[:dry_run]
-      info "Dry run only"
-    end
+    info "Backing up #{@source} to #{@target} on #{Time.now}"
+    info "Rsync command: #{@cmd}"
+    info "Dry run only" if options[:dry_run]
       
     if File.exist? temp_target_path
       warn "Preexisting temporary target. Moving it aside."
-      File.rename temp_target_path, "#{temp_target_path}-#{"%0.4d" % Random.rand(1000)}"
+      File.rename temp_target_path, "#{temp_target_path}-#{Time.now.to_i}"
     end
 
-
-    Open3.popen3(cmd) do |stdin, stdout, stderr, wait|
-      stdin.close
-      until stdout.eof?
-        info stdout.gets
-      end
-      until stderr.eof?
-        errors =  stderr.gets
-      end
-      result = wait.value
-      raise "Command failed. Return code: #{result}\n#{errors}" unless result == 0
-    end
-        
+    # the dry run option will be passed through to the rsync command,
+    # so we still do want to run it.
+    result = Open3.capture3(@cmd)
+    raise "Rsync Error: exit status: #{s.exit_code}: error: #{e}" unless result[2].success?
+    result
   end
 
   def finalize
-
-    incomplete = "#{options[:target]}/.incomplete"
-    complete = "#{options[:target]}/#{backup_dir_name}"
-
-    if File.exist?(incomplete) &&
-        !File.exist?(complete)
-      File.rename(incomplete, complete)
-    end
-    
-    File.open("#{options[:target]}/.lastfull",'w') do |fh|
-      fh.puts backup_dir_name
-    end
-
-    info "Backup saved in #{options[:target]}/#{backup_dir_name}"
+    File.rename(@incomplete, @complete) if File.exist?(@incomplete)
+    File.write(File.join(@target,DEFAULT_LAST_FULL_DIR_NAME), backup_dir_name)
+    info "Backup saved in #{@complete}"
   end
 
 

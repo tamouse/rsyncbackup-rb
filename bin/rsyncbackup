@@ -8,15 +8,8 @@ class App
   include Methadone::Main
   include Methadone::CLILogging
 
-  if logger.info?
-    logger.level=Logger::WARN
-  end
-  
-
   main do |source, target|
-    options[:source] = source
-    options[:target] = target
-    syncer = Rsyncbackup.new(options)
+    syncer = Rsyncbackup.new(source, target, options)
     syncer.run
     syncer.finalize
   end
@@ -24,16 +17,16 @@ class App
   description "Yet another rsync backup script, this time in ruby"
 
   on("-e FILE","--exclusions","Exclusions file")
-  on("-d","--[no-]dry-run","Mark this as a dry run (or not)")
-  on("-v","--verbose","Be chatty")
-  
+  on("-d","--dry-run","Mark this as a dry run (or not)")
+  on("--verbose","Be chatty")
+  on("--debug","show debug stuff")
 
   arg :source, "Source to backup from"
   arg :target, "Target backup directory"
 
   version Rsyncbackup::VERSION
 
-  use_log_level_option
+  # use_log_level_option
 
   go!
 end

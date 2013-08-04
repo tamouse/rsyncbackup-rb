@@ -18,7 +18,8 @@ class Rsyncbackup
     
     cmd = []
     cmd << options[:rsync_cmd]
-    cmd << '--verbose --progress --itemize-changes' if logger.info?
+    cmd << '--dry-run'             if options[:dry_run]
+    cmd << '--verbose --progress --itemize-changes' if (options[:verbose] || options[:debug])
     cmd << '--archive'             if options[:archive]
     cmd << '--one-file-system'     if options[:one_file_system]
     cmd << '--hard-links'          if options[:hard_links]
@@ -28,10 +29,10 @@ class Rsyncbackup
     cmd << '--delete'              if options[:delete]
     cmd << "--exclude-file #{options[:exclusions]}" if File.exist?(options[:exclusions])
     cmd << "--link-dest '#{options[:link_dest]}'" if options[:link_dest]
-    cmd << "'#{options[:source]}'"
-    cmd << "'#{temp_target_path}'"
+    cmd << ?" + @source + ?"
+    cmd << ?" + temp_target_path + ?"
     
-    cmd.join(' ').tap{|t| debug "#{caller[0]} Command: #{t}" }
+    cmd.join(' ')
     
   end
     
@@ -39,12 +40,20 @@ class Rsyncbackup
   # returns nil otherwise
   def last_full_backup
     
-    lastfull = "#{options[:target]}/.lastfull"
-    if File.exist?(lastfull)
-      last_full_directory = IO.readlines(lastfull).first.chomp
-    else
-      nil
+    unless @last_full_backup
+      lastfull = File.join(@target,DEFAULT_LAST_FULL_DIR_NAME)
+      @last_full_backup = unless File.exist?(lastfull)
+                            nil
+                          else
+                            last_full_directory = IO.readlines(lastfull).first.chomp
+                         unless File.exist?(File.join(@target,last_full_directory))
+                              nil
+                            else
+                              last_full_directory
+                            end
+                          end
     end
+    @last_full_backup
 
   end
   
@@ -56,12 +65,12 @@ class Rsyncbackup
 
   # returns the full target path, including backup directory name
   def full_target_path
-    @full_target_path ||= options[:target]+"/"+backup_dir_name
+    @full_target_path ||= File.join(@target, backup_dir_name)
   end
 
   # returns the temporary target path
   def temp_target_path
-    @temp_target_path ||= options[:target]+"/.incomplete"
+    @temp_target_path ||= File.join(@target, DEFAULT_INCOMPLETE_DIR_NAME)
   end
   
 
@@ -78,9 +87,9 @@ class Rsyncbackup
   # source or target.
   #
   # *s*:: string to strip
-  def strip_trailing_separator_if_any(s)
-    raise "not a String" unless s.is_a?(String)
-    s = s.gsub(%r{/$},'')
+  def strip_trailing_separator_if_any(s,keep_if_symlink=false)
+    s = s.to_s
+    s = s.sub(%r{/+$},'') unless keep_if_symlink && File.symlink?(s)
   end
 
 end

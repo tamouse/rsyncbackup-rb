@@ -9,10 +9,9 @@ Feature: help lists all options and arguments
     And the banner should be present
     And the banner should document that this app takes options
     And the following options should be documented:
-      |--[no-]dry-run|
+      |--dry-run     |
       |--exclusions|
       |--help|
-      |--log-level|
       |--verbose|
       |--version|
     And the banner should document that this app's arguments are:
