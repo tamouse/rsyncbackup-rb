@@ -6,3 +6,4 @@ features/test_files/target/*
 !features/test_files/target/.gitkeep
 *.gem
 tmp/
+Gemfile.lock
