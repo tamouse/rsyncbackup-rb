@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'optparse'
 require 'methadone'
 require 'rsyncbackup'
 
@@ -9,9 +8,24 @@ class App
   include Methadone::CLILogging
 
   main do |source, target|
-    syncer = Rsyncbackup.new(source, target, options)
-    syncer.run
-    syncer.finalize
+    logger.level = Logger::WARN
+    logger.level = Logger::INFO if options[:verbose]
+    logger.error_level = Logger::DEBUG if options[:debug]
+    begin
+      syncer = Rsyncbackup.new(source, target, options)
+      o, e, s = syncer.run
+      syncer.finalize
+      if s.success?
+        info o
+      else
+        error e
+      end
+    rescue RuntimeError => e
+      error "Error occured in rsyncbackup: #{e.class} #{e}"
+      debug "Backtrace:\n#{e.backtrace}"
+      exit 127
+    end
+    s.exitstatus 
   end
 
   description "Yet another rsync backup script, this time in ruby"
@@ -25,8 +39,6 @@ class App
   arg :target, "Target backup directory"
 
   version Rsyncbackup::VERSION
-
-  # use_log_level_option
 
   go!
 end
