@@ -26,7 +26,7 @@ describe Rsyncbackup do
   end
 
   context "utilities" do
-    let(:syncer) { Rsyncbackup.new(source, target, :dry_run => true, :debug => true) }    
+    let(:syncer) { Rsyncbackup.new(source, target, :dry_run => true) }    
 
     context "#build_command" do
 
@@ -92,10 +92,33 @@ describe Rsyncbackup do
           syncer.strip_trailing_separator_if_any('source/',true).should == 'source'
         end
       
-        it "should not remove trailing slash from source if source is a symlink" do
-          source_link = Tempfile.new("sourcelink").to_s
-          syncer.strip_trailing_separator_if_any(source_link,true).should == source_link
+        context "when a symlink" do
+          let(:source_link) do
+            tmpfile = Tempfile.new("sourcelink")
+            path = tmpfile.path
+            tmpfile.close
+            tmpfile.unlink
+            path
+          end
+
+          let(:source_link_slash) {source_link + File::SEPARATOR}
+
+          
+          before do
+            File.symlink(source,source_link)
+          end
+
+          after do
+            File.unlink(source_link)
+          end
+
+          it "should not remove trailing slash from source if source is a symlink" do
+            syncer.strip_trailing_separator_if_any(source_link_slash,true).should == source_link_slash
+          end
+
+          
         end
+
 
         it "should remove trailing slash from target" do
           syncer.strip_trailing_separator_if_any('target/').should == 'target'

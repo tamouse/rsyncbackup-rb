@@ -32,7 +32,7 @@ describe Rsyncbackup do
   end
   
   context "Options Validity" do
-    let(:syncer) { Rsyncbackup.new(source, target, :dry_run => true, :debug => true) }
+    let(:syncer) { Rsyncbackup.new(source, target, :dry_run => true) }
 
     it "has a command" do
       syncer.options[:rsync_cmd].should =~ /rsync/

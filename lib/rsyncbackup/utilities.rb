@@ -89,7 +89,12 @@ class Rsyncbackup
   # *s*:: string to strip
   def strip_trailing_separator_if_any(s,keep_if_symlink=false)
     s = s.to_s
-    s = s.sub(%r{/+$},'') unless keep_if_symlink && File.symlink?(s)
+    s_s = s.sub(%r{#{File::SEPARATOR}+$},'')
+    unless keep_if_symlink
+      s_s
+    else
+      File.symlink?(s_s) ? s : s_s
+    end
   end
 
 end
