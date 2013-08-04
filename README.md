@@ -20,7 +20,9 @@ Or install it yourself as:
 
     rsyncbackup [options] SOURCE TARGET
 	
-`SOURCE` and `TARGET` can be any valid rsync spec.
+`SOURCE` can be any valid rsync spec.
+
+`TARGET` must be a valid file path on the local machine.
 
 Consult the --help for details.
 

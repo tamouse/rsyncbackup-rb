@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{Yet another rsyncbackup script, this time in ruby}
   gem.summary       = %q{Yet another rsyncbackup script, this time in ruby}
   gem.homepage      = "http://github.com/tamouse/rsyncbackup-rb"
+  gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
