@@ -31,7 +31,7 @@ class Rsyncbackup
     cmd << "'#{options[:source]}'"
     cmd << "'#{temp_target_path}'"
     
-    cmd.join(' ').tap{|t| debug "Command: #{t}" }
+    cmd.join(' ').tap{|t| debug "#{caller[0]} Command: #{t}" }
     
   end
     

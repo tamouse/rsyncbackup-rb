@@ -30,7 +30,7 @@ class Rsyncbackup
       logger.level=Logger::INFO
     end
 
-    debug "options: #{options.inspect}"
+    debug "#{caller[0]}options: #{options.inspect}"
 
   end
 
