@@ -13,19 +13,19 @@ class App
     logger.error_level = Logger::DEBUG if options[:debug]
     begin
       syncer = Rsyncbackup.new(source, target, options)
-      o, e, s = syncer.run
+      syncer.run
       syncer.finalize
-      if s.success?
-        info o
+      if syncer.status.success?
+        info syncer.output
       else
-        error e
+        error syncer.error
       end
-    rescue RuntimeError => e
+    rescue Exception => e
       error "Error occured in rsyncbackup: #{e.class} #{e}"
       debug "Backtrace:\n#{e.backtrace}"
       exit 127
     end
-    s.exitstatus 
+    syncer.status.exitstatus 
   end
 
   description "Yet another rsync backup script, this time in ruby"
