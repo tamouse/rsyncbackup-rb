@@ -12,7 +12,31 @@
 require 'methadone'
 
 class Rsyncbackup
-  
+
+  def _run_the_command(cmd)
+    Open3.popen3(cmd) do |stdin, stdout, stderr, t|
+      pid = t.pid
+      stdin.close
+      err_thr = Thread.new { copy_lines(stderr, $stderr) }
+      puts "Reading STDOUT"
+      copy_lines(stdout, $stdout)
+      err_thr.join
+      t.value
+    end
+  end
+
+  def copy_lines(str_in, str_out)
+    str_in.each_line {|line| str_out.puts line}
+  end
+
+
+
+  # returns true if the rsync command was successful
+  def success?
+    (@status.nil?) ? nil : @status.success?
+  end
+
+
   # returns the command string to execute with all parameters set
   def build_command
     

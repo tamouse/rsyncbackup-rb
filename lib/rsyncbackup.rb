@@ -55,14 +55,11 @@ class Rsyncbackup
 
     # the dry run option will be passed through to the rsync command,
     # so we still do want to run it.
-    self.output, self.error, self.status = Open3.capture3(@cmd)
-    debug "#{caller(0,1).first} self.output.size: #{self.output.size} self.error.size: #{self.error.size} self.status #{self.status.inspect}"
-    raise "Rsync Error: exit status: #{self.status.exit_code}: error: #{e}" unless self.status.success?
+    self.status = _run_the_command(@cmd)
+    debug "#{caller(0,1).first} self.status #{self.status.inspect}"
+    raise "Rsync Error: exit status: #{self.status.exitstatus}" unless (self.status.success? || self.status.exitstatus == 23) # don't abort if some files could not be transferred
+    finalize
     self
-  end
-
-  def success?
-    (@status.nil?) ? nil : @status.success?
   end
 
   def finalize

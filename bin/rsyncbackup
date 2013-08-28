@@ -14,18 +14,11 @@ class App
     begin
       syncer = Rsyncbackup.new(source, target, options)
       syncer.run
-      syncer.finalize
-      if syncer.status.success?
-        info syncer.output
-      else
-        error syncer.error
-      end
     rescue Exception => e
       error "Error occured in rsyncbackup: #{e.class} #{e}"
-      debug "Backtrace:\n#{e.backtrace}"
+      debug "Backtrace:\n#{e.backtrace.join("\n")}"
       exit 127
     end
-    syncer.status.exitstatus 
   end
 
   description "Yet another rsync backup script, this time in ruby"
