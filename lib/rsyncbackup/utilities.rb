@@ -18,7 +18,7 @@ class Rsyncbackup
       pid = t.pid
       stdin.close
       err_thr = Thread.new { copy_lines(stderr, $stderr) }
-      puts "Reading STDOUT"
+      debug "#{caller(0,1).first} Reading STDOUT"
       copy_lines(stdout, $stdout)
       err_thr.join
       t.value
